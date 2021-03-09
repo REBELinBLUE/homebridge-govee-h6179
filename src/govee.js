@@ -1,22 +1,26 @@
 const color = require("./color");
 
 class BluetoothLED extends require("events").EventEmitter {
-	static UUID_CONTROL_CHARACTERISTIC = "00010203-0405-0607-0809-0a0b0c0d2b11";
-	static Ping = Buffer.from([0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAB]);
-	static LedCommand = {
-		POWER: 0x01,
-		BRIGHTNESS: 0x04,
-		COLOR: 0x05,
-	};
+  static UUID_CONTROL_CHARACTERISTIC = "00010203-0405-0607-0809-0a0b0c0d2b11";
 
-	static LedMode = {
-		MANUAL: 0x02,
-		MICROPHONE: 0x06,
-		SCENES: 0x05,
-	};
+  static Ping = Buffer.from([0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAB]);
 
+  static LedCommand = {
+    POWER: 0x01,
+    BRIGHTNESS: 0x04,
+    COLOR: 0x05,
+  };
 
-	waitForEvent(event) {var self = this; return new Promise((res) => self.on(event, res))}
+  static LedMode = {
+    MANUAL: 0x02,
+    MICROPHONE: 0x06,
+    SCENES: 0x05,
+  };
+
+	waitForEvent(event) {
+	  var self = this;
+	  return new Promise((res) => self.on(event, res))
+	}
 
 	constructor(address, noble) {
 		super();
@@ -29,25 +33,35 @@ class BluetoothLED extends require("events").EventEmitter {
 		this._pingTimer;
 
 		this._noble.on("discover", (d) => {
-			if (d.address != self._addr) return;
+			if (d.address.toLowerCase() != self._addr.toLowerCase()) {
+			  return;
+      }
+
 			self._noble.stopScanning();
 			self.emit("located");
+
 			d.on('disconnect', async () =>{
 				self.emit('ble:disconnect')
 				self.controller = undefined;
 				// console.log('disconnected device');
-				if (self._disconect_called) self.emit('disconnect');
-				else await self.reconnect();
-			})
+
+				if (self._disconect_called) {
+				  self.emit('disconnect');
+        } else {
+				  await self.reconnect();
+        }
+			});
+
 			d.connect(() => {
 				self._dev = d;
+
 				d.discoverSomeServicesAndCharacteristics(
 					[],
 					[],
 					(_, service, chars) => {
 						// console.log(service, chars)
 						for (let char of chars) {
-							if (char.uuid == BluetoothLED.UUID_CONTROL_CHARACTERISTIC) {
+							if (char.uuid.replace('-', '') == BluetoothLED.UUID_CONTROL_CHARACTERISTIC.replace('-', '')) {
 								setTimeout(() => self.emit("connected"), 500);
 								self._pingTimer = setInterval(self._ping, 2000);
 								self.controller = char;
@@ -74,7 +88,7 @@ class BluetoothLED extends require("events").EventEmitter {
 					(_, service, chars) => {
 						// console.log(service, chars)
 						for (let char of chars) {
-							if (char.uuid == BluetoothLED.UUID_CONTROL_CHARACTERISTIC) {
+							if (char.uuid.replace('-', '') == BluetoothLED.UUID_CONTROL_CHARACTERISTIC.replace('-', '')) {
 								// console.log('reconnected')
 								setTimeout(() => self.emit("reconnected"), 500);
 								self.controller = char;
@@ -105,22 +119,35 @@ class BluetoothLED extends require("events").EventEmitter {
 	}
 
 	_ping() {
-		if (!this.controller) throw new Error("Not connected");
+		if (!this.controller) {
+		  throw new Error("Not connected");
+    }
+
 		this.controller.write(BluetoothLED.Ping, true);
 	}
 	_send(cmd, payload) {
-		if (!this.controller) throw new Error("Not connected");
+		if (!this.controller) {
+		  throw new Error("Not connected");
+    }
+
 		cmd = cmd & 0xff;
-		var preChecksum_frame = Buffer.concat([
+
+		let preChecksum_frame = Buffer.concat([
 			Buffer.from([0x33, cmd].flat()),
 			Buffer.from([payload].flat()),
 		]);
-		var preChecksum_padding_frame = Buffer.concat([
+
+		let preChecksum_padding_frame = Buffer.concat([
 			preChecksum_frame,
 			Buffer.from(new Array(19 - preChecksum_frame.length).fill(0)),
 		]);
-		var checksum = 0;
-		for (let i of preChecksum_padding_frame) checksum ^= i;
+
+		let checksum = 0;
+
+		for (let i of preChecksum_padding_frame) {
+		  checksum ^= i;
+    }
+
 		this.controller.write(
 			Buffer.concat([
 				preChecksum_padding_frame,
@@ -141,9 +168,13 @@ class BluetoothLED extends require("events").EventEmitter {
 
 	setBrightness(value) {
 		var value = Number(value) / 100;
-		if (Number.isNaN(value) || value > 1 || value < 0) throw new Error('Brightness if not a valid percent');
+		if (Number.isNaN(value) || value > 1 || value < 0) {
+		  throw new Error('Brightness if not a valid percent');
+    }
+
 		this._send(BluetoothLED.LedCommand.BRIGHTNESS, Math.floor(value* 0xFF))
 	}
+
 	setColor(color) {
 		this._send(BluetoothLED.LedCommand.COLOR, [
 			BluetoothLED.LedMode.MANUAL,
@@ -151,5 +182,6 @@ class BluetoothLED extends require("events").EventEmitter {
 		]);
 	}
 }
+
 module.exports = BluetoothLED;
 

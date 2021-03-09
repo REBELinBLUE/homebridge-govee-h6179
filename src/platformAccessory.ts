@@ -1,6 +1,11 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import noble from '@abandonware/noble';
 
 import { ExampleHomebridgePlatform } from './platform';
+import BluetoothLED from './govee';
+
+// const noble = require("noble-winrt"); // if you use windows, use this lib
+
 
 /**
  * Platform Accessory
@@ -22,16 +27,24 @@ export class ExamplePlatformAccessory {
     ColorTemperature: 0,
   };
 
+  private led: BluetoothLED;
+
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
+    this.led = new BluetoothLED('A4:C1:38:DA:1A:B6', noble);
+    this.led
+      .on('ble:disconnect', () => this.platform.log.debug('lost connection'))
+      .on('reconnected', () => this.platform.log.debug('reconnected'))
+      .on('disconnect', () => this.platform.log.debug('disconnnect'))
+      .on('connected', () => this.platform.log.debug('connected'));
 
-    // set accessory information
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Govee')
       .setCharacteristic(this.platform.Characteristic.Model, 'H6179')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+      .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.00.08')
+      .setCharacteristic(this.platform.Characteristic.HardwareRevision, '1.00.01');
 
     // get the LightBulb service if it exists, otherwise create a new LightBulb service
     // you can create multiple services for each accessory
@@ -41,10 +54,6 @@ export class ExamplePlatformAccessory {
     // in this example we are using the name we stored in the `accessory.context` in the `discoverDevices` method.
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.exampleDisplayName);
 
-    // each service must implement at-minimum the "required characteristics" for the given service type
-    // see https://developers.homebridge.io/#/service/Lightbulb
-
-    // register handlers for the On/Off Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setOn.bind(this))
       .onGet(this.getOn.bind(this));
@@ -66,30 +75,14 @@ export class ExamplePlatformAccessory {
       .onGet(this.getSaturation.bind(this));
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, turning on a Light bulb.
-   */
   async setOn(value: CharacteristicValue) {
-    // implement your own code to turn your device on/off
     this.exampleStates.On = value as boolean;
+
+    this.led.setState(this.exampleStates.On);
 
     this.platform.log.debug('Set Characteristic On ->', value);
   }
 
-  /**
-   * Handle the "GET" requests from HomeKit
-   * These are sent when HomeKit wants to know the current state of the accessory, for example, checking if a Light bulb is on.
-   *
-   * GET requests should return as fast as possbile. A long delay here will result in
-   * HomeKit being unresponsive and a bad user experience in general.
-   *
-   * If your device takes time to respond you should update the status of your device
-   * asynchronously instead using the `updateCharacteristic` method instead.
-
-   * @example
-   * this.service.updateCharacteristic(this.platform.Characteristic.On, true)
-   */
   async getOn(): Promise<CharacteristicValue> {
     // implement your own code to check if the device is on
     const isOn = this.exampleStates.On;
@@ -104,6 +97,8 @@ export class ExamplePlatformAccessory {
 
   async setBrightness(value: CharacteristicValue) {
     this.exampleStates.Brightness = value as number;
+
+    this.led.setBrightness(this.exampleStates.Brightness);
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
@@ -130,33 +125,31 @@ export class ExamplePlatformAccessory {
     return hue;
   }
 
+  async setColorTemperature(value: CharacteristicValue) {
+    this.exampleStates.ColorTemperature = value as number;
 
+    this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
+  }
 
-	async setColorTemperature(value: CharacteristicValue) {
-		this.exampleStates.ColorTemperature = value as number;
+  async getColorTemperature(): Promise<CharacteristicValue> {
+    const colorTemperature = this.exampleStates.ColorTemperature;
 
-		this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
-	}
+    this.platform.log.debug('Get Characteristic ColorTemperature ->', colorTemperature);
 
-	async getColorTemperature(): Promise<CharacteristicValue> {
-		const colorTemperature = this.exampleStates.ColorTemperature;
+    return colorTemperature;
+  }
 
-		this.platform.log.debug('Get Characteristic ColorTemperature ->', colorTemperature);
+  async setSaturation(value: CharacteristicValue) {
+    this.exampleStates.Saturation = value as number;
 
-		return colorTemperature;
-	}
+    this.platform.log.debug('Set Characteristic Saturation -> ', value);
+  }
 
-	async setSaturation(value: CharacteristicValue) {
-		this.exampleStates.Saturation = value as number;
+  async getSaturation(): Promise<CharacteristicValue> {
+    const saturation = this.exampleStates.Saturation;
 
-		this.platform.log.debug('Set Characteristic Saturation -> ', value);
-	}
+    this.platform.log.debug('Get Characteristic Saturation ->', saturation);
 
-	async getSaturation(): Promise<CharacteristicValue> {
-		const saturation = this.exampleStates.Saturation;
-
-		this.platform.log.debug('Get Characteristic Saturation ->', saturation);
-
-		return saturation;
-	}
+    return saturation;
+  }
 }
