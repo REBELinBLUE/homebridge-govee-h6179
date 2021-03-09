@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import noble from '@abandonware/noble';
 
 import { ExampleHomebridgePlatform } from './platform';
-import { BluetoothLED } from './govee';
+import { Govee } from './govee';
 
 // const noble = require("noble-winrt"); // if you use windows, use this lib
 
@@ -27,13 +27,13 @@ export class ExamplePlatformAccessory {
     ColorTemperature: 0,
   };
 
-  private led: BluetoothLED;
+  private led: Govee;
 
   constructor(
     private readonly platform: ExampleHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-    this.led = new BluetoothLED('A4:C1:38:DA:1A:B6', noble);
+    this.led = new Govee('A4:C1:38:DA:1A:B6', noble);
     this.led
       .on('ble:disconnect', () => this.platform.log.debug('lost connection'))
       .on('reconnected', () => this.platform.log.debug('reconnected'))
