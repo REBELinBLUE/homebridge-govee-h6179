@@ -20,7 +20,6 @@ export class ExamplePlatformAccessory {
     Saturation: 0,
     Hue: 0,
     ColorTemperature: 0,
-    Saturation: 0,
   };
 
   constructor(
