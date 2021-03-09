@@ -2,7 +2,7 @@ import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import noble from '@abandonware/noble';
 
 import { ExampleHomebridgePlatform } from './platform';
-import BluetoothLED from './govee';
+import { BluetoothLED } from './govee';
 
 // const noble = require("noble-winrt"); // if you use windows, use this lib
 
