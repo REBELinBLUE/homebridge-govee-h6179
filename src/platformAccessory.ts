@@ -17,6 +17,10 @@ export class ExamplePlatformAccessory {
   private exampleStates = {
     On: false,
     Brightness: 100,
+    Saturation: 0,
+    Hue: 0,
+    ColorTemperature: 0,
+    Saturation: 0,
   };
 
   constructor(
@@ -43,12 +47,24 @@ export class ExamplePlatformAccessory {
 
     // register handlers for the On/Off Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.On)
-      .onSet(this.setOn.bind(this))                // SET - bind to the `setOn` method below
-      .onGet(this.getOn.bind(this));               // GET - bind to the `getOn` method below
+      .onSet(this.setOn.bind(this))
+      .onGet(this.getOn.bind(this));
 
-    // register handlers for the Brightness Characteristic
     this.service.getCharacteristic(this.platform.Characteristic.Brightness)
-      .onSet(this.setBrightness.bind(this));       // SET - bind to the 'setBrightness` method below
+      .onSet(this.setBrightness.bind(this))
+      .onGet(this.getBrightness.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.Hue)
+      .onSet(this.setHue.bind(this))
+      .onGet(this.getHue.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+      .onSet(this.setColorTemperature.bind(this))
+      .onGet(this.getColorTemperature.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.Saturation)
+      .onSet(this.setSaturation.bind(this))
+      .onGet(this.getSaturation.bind(this));
 
     /**
      * Creating multiple services of the same type.
@@ -127,15 +143,61 @@ export class ExamplePlatformAccessory {
     return isOn;
   }
 
-  /**
-   * Handle "SET" requests from HomeKit
-   * These are sent when the user changes the state of an accessory, for example, changing the Brightness
-   */
   async setBrightness(value: CharacteristicValue) {
-    // implement your own code to set the brightness
     this.exampleStates.Brightness = value as number;
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
   }
 
+  async getBrightness(): Promise<CharacteristicValue> {
+    const brightness = this.exampleStates.Brightness;
+
+    this.platform.log.debug('Get Characteristic Brightness ->', brightness);
+
+    return brightness;
+  }
+
+  async setHue(value: CharacteristicValue) {
+    this.exampleStates.Hue = value as number;
+
+    this.platform.log.debug('Set Characteristic Hue -> ', value);
+  }
+
+  async getHue(): Promise<CharacteristicValue> {
+    const hue = this.exampleStates.Hue;
+
+    this.platform.log.debug('Get Characteristic Hue ->', hue);
+
+    return hue;
+  }
+
+
+
+	async setColorTemperature(value: CharacteristicValue) {
+		this.exampleStates.ColorTemperature = value as number;
+
+		this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
+	}
+
+	async getColorTemperature(): Promise<CharacteristicValue> {
+		const colorTemperature = this.exampleStates.ColorTemperature;
+
+		this.platform.log.debug('Get Characteristic ColorTemperature ->', colorTemperature);
+
+		return colorTemperature;
+	}
+
+	async setSaturation(value: CharacteristicValue) {
+		this.exampleStates.Saturation = value as number;
+
+		this.platform.log.debug('Set Characteristic Saturation -> ', value);
+	}
+
+	async getSaturation(): Promise<CharacteristicValue> {
+		const saturation = this.exampleStates.Saturation;
+
+		this.platform.log.debug('Get Characteristic Saturation ->', saturation);
+
+		return saturation;
+	}
 }
