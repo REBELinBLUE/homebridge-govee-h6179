@@ -3,9 +3,7 @@
 import { EventEmitter } from 'events';
 import homebridgeLib from 'homebridge-lib';
 
-const {
-    xyToHsv, hsvToRgb, ctToXy
-} = homebridgeLib.Colour;
+const { hsvToRgb } = homebridgeLib.Colour;
 
 export class Govee extends EventEmitter {
   public _noble: any;
@@ -352,40 +350,40 @@ export class Govee extends EventEmitter {
   }
 
   setTemperature(value) {
-      //
+      // Supply a value between -1 (warm) and 1 (cold)
       // if (Number.isNaN(value) || value > 1 || value < -1) {
       //     throw new Error('Temperature if not a valid');
       // }
       //
-      // const foo = (value+1) / 2
-      // const index = Math.round(foo * (Govee.SHADES_OF_WHITE.length-1))
-      // let  white = Govee.SHADES_OF_WHITE[index];
-      //
-      // white = Govee.SHADES_OF_WHITE[Math.floor(Math.random() * Govee.SHADES_OF_WHITE.length)]
-      //
-      //
-      // const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
-      //
-      //       const rgb = [
-      //     parseInt(bits[1], 16),
-      //         parseInt(bits[2], 16),
-      //         parseInt(bits[3], 16)
-      //     ]
+      const foo = (value+1) / 2
+      const index = Math.round(foo * (Govee.SHADES_OF_WHITE.length-1))
+      let  white = Govee.SHADES_OF_WHITE[index];
 
-      const xy = ctToXy(value);
-      const { h, s } = xyToHsv(xy);
-      const { r, g, b} = hsvToRgb(h, s);
+      white = Govee.SHADES_OF_WHITE[Math.floor(Math.random() * Govee.SHADES_OF_WHITE.length)]
+
+
+      const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
+
+            const rgb = [
+             parseInt(bits[1], 16),
+              parseInt(bits[2], 16),
+              parseInt(bits[3], 16)
+          ]
+
+      // const xy = ctToXy(value);
+      // const { h, s } = xyToHsv(xy);
+      // const { r, g, b} = hsvToRgb(h, s);
 
 
       this._send(Govee.LedCommand.COLOR, [
           Govee.LedMode.MANUAL,
-          255,
-          255,
-          255,
-          1,
-          r,
-          g,
-          b
+          0xff,
+          0xff,
+          0xff,
+          0x01,
+          Math.round(rgb[0] * 255),
+          Math.round(rgb[1] * 255),
+          Math.round(rgb[2] * 255)
       ]);
   }
 }
