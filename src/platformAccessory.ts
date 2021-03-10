@@ -13,7 +13,7 @@ export class GoveePlatformAccessory {
     Saturation: 100,
     Hue: 360,
     ColorTemperature: 500,
-    Connected: false
+    Connected: false,
   };
 
   private led: Govee;
@@ -26,20 +26,20 @@ export class GoveePlatformAccessory {
 
     this.led
       .on('ble:disconnect', () => {
-          this.states.Connected = false;
-          this.platform.log.debug('Lost connection')
+        this.states.Connected = false;
+        this.platform.log.debug('Lost connection');
       })
       .on('reconnected', () => {
-          this.states.Connected = true;
-          this.platform.log.debug('Reconnected')
+        this.states.Connected = true;
+        this.platform.log.debug('Reconnected');
       })
       .on('disconnect', () => {
-          this.states.Connected = false;
-          this.platform.log.debug('Disconnnect')
+        this.states.Connected = false;
+        this.platform.log.debug('Disconnnect');
       })
       .on('connected', () => {
-          this.states.Connected = true;
-          this.platform.log.debug('Connected')
+        this.states.Connected = true;
+        this.platform.log.debug('Connected');
       });
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
@@ -82,14 +82,14 @@ export class GoveePlatformAccessory {
     this.led.setState(this.states.On);
 
     if (this.states.On) {
-        this.led.setTemperature(this.states.ColorTemperature);
-        this.led.setColor(this.states.Hue, this.states.Saturation);
+      this.led.setTemperature(this.states.ColorTemperature);
+      this.led.setColor(this.states.Hue, this.states.Saturation);
     }
   }
 
   async getOn(): Promise<CharacteristicValue> {
     if (!this.states.Connected) {
-        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
     const isOn = this.states.On;
