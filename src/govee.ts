@@ -214,11 +214,13 @@ export class Govee extends EventEmitter {
   }
 
   setColor(hue, sat) {
-      const { r, g, b } = hsvToRgb(colour.hue, colour.sat)
+    const { r, g, b } = hsvToRgb(hue, sat)
 
-    // this._send(BluetoothLED.LedCommand.COLOR, [
-    //   BluetoothLED.LedMode.MANUAL,
-    //   ...this._getColor(color),
-    // ]);
+    this._send(Govee.LedCommand.COLOR, [
+      Govee.LedMode.MANUAL,
+      Math.round(r * 255),
+      Math.round(g * 255),
+      Math.round(b * 255)
+    ]);
   }
 }

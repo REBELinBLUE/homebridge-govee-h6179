@@ -4,8 +4,6 @@ import noble from '@abandonware/noble';
 import { ExampleHomebridgePlatform } from './platform';
 import { Govee } from './govee';
 
-// const noble = require("noble-winrt"); // if you use windows, use this lib
-
 
 /**
  * Platform Accessory
@@ -145,6 +143,8 @@ export class ExamplePlatformAccessory {
     this.exampleStates.Saturation = value as number;
 
     this.platform.log.debug('Set Characteristic Saturation -> ', value);
+
+    this.led.setColor(this.exampleStates.Hue, this.exampleStates.Saturation)
   }
 
   async getSaturation(): Promise<CharacteristicValue> {
