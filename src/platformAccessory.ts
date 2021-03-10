@@ -115,6 +115,8 @@ export class ExamplePlatformAccessory {
     this.exampleStates.Hue = value as number;
 
     this.platform.log.debug('Set Characteristic Hue -> ', value);
+
+    this.led.setColor(this.exampleStates.Hue, this.exampleStates.Saturation)
   }
 
   async getHue(): Promise<CharacteristicValue> {
