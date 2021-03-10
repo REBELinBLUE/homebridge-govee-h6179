@@ -24,7 +24,7 @@ export class ExamplePlatformAccessory {
     Brightness: 100,
     Saturation: 0,
     Hue: 0,
-    ColorTemperature: 0,
+    ColorTemperature: 140,
   };
 
   private led: Govee;

@@ -13,6 +13,7 @@ export class Govee extends EventEmitter {
   public emit: any;
 
   static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
+                                        //00010203-0405-0607-0809-0a0b0c0d2b11
 
   static Ping = Buffer.from([
     0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -42,6 +43,7 @@ export class Govee extends EventEmitter {
     this._pingTimer;
 
     console.log(self._addr.toLowerCase());
+    console.log(Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '').toLowerCase());
 
     this._noble.on('discover', (d) => {
       console.log(d.address.toLowerCase() + ' ' + d.advertisement.localName)
@@ -73,7 +75,8 @@ export class Govee extends EventEmitter {
           (_, service, chars) => {
             // console.log(service, chars)
             for (const char of chars) {
-              if (char.uuid.replace('-', '') === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '')) {
+              console.log (char.uuid.replace('-', '').toLowerCase());
+              if (char.uuid.replace('-', '').toLowerCase() === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '').toLowerCase()) {
                 setTimeout(() => self.emit('connected'), 500);
                 self._pingTimer = setInterval(self._ping, 2000);
                 self.controller = char;
@@ -101,7 +104,8 @@ export class Govee extends EventEmitter {
           (_, service, chars) => {
             // console.log(service, chars)
             for (const char of chars) {
-              if (char.uuid.replace('-', '') === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '')) {
+              console.log(char.uuid.replace('-', '').toLowerCase());
+              if (char.uuid.replace('-', '').toLowerCase() === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '').toLowerCase()) {
                 // console.log('reconnected')
                 setTimeout(() => self.emit('reconnected'), 500);
                 self.controller = char;
