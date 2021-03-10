@@ -12,8 +12,8 @@ export class Govee extends EventEmitter {
   public _dev: any;
   public emit: any;
 
-  static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
-                                        //00010203-0405-0607-0809-0a0b0c0d2b11
+  //static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
+    static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
 
   static Ping = Buffer.from([
     0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
