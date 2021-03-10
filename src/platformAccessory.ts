@@ -55,10 +55,9 @@ export class ExamplePlatformAccessory {
       .onSet(this.setSaturation.bind(this))
       .onGet(this.getSaturation.bind(this));
 
-    // this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
-    //   .onSet(this.setColorTemperature.bind(this))
-    //   .onGet(this.getColorTemperature.bind(this));
-
+    this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+      .onSet(this.setColorTemperature.bind(this))
+      .onGet(this.getColorTemperature.bind(this));
   }
 
   async setOn(value: CharacteristicValue) {
@@ -67,6 +66,11 @@ export class ExamplePlatformAccessory {
     this.platform.log.debug('Set Characteristic On ->', value);
 
     this.led.setState(this.states.On);
+
+    if (this.states.On) {
+        this.led.setTemperature(this.states.ColorTemperature);
+        this.led.setColor(this.states.Hue, this.states.Saturation);
+    }
   }
 
   async getOn(): Promise<CharacteristicValue> {
@@ -128,19 +132,19 @@ export class ExamplePlatformAccessory {
     return saturation;
   }
 
-  // async setColorTemperature(value: CharacteristicValue) {
-  //   this.states.ColorTemperature = value as number;
-  //
-  //   this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
-  //
-  //   this.led.setTemperature(this.states.ColorTemperature);
-  // }
-  //
-  // async getColorTemperature(): Promise<CharacteristicValue> {
-  //   const colorTemperature = this.states.ColorTemperature;
-  //
-  //   this.platform.log.debug('Get Characteristic ColorTemperature -> ', colorTemperature);
-  //
-  //   return colorTemperature;
-  // }
+  async setColorTemperature(value: CharacteristicValue) {
+    this.states.ColorTemperature = value as number;
+
+    this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
+
+    this.led.setTemperature(this.states.ColorTemperature);
+  }
+
+  async getColorTemperature(): Promise<CharacteristicValue> {
+    const colorTemperature = this.states.ColorTemperature;
+
+    this.platform.log.debug('Get Characteristic ColorTemperature -> ', colorTemperature);
+
+    return colorTemperature;
+  }
 }

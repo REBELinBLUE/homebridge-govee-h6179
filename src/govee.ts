@@ -292,7 +292,7 @@ export class Govee extends EventEmitter {
       throw new Error('Not connected');
     }
 
-    cmd = cmd & 0xff;
+    cmd = cmd & 0xFF;
 
     const preChecksum_frame = Buffer.concat([
       Buffer.from([0x33, cmd].flat()),
@@ -312,7 +312,7 @@ export class Govee extends EventEmitter {
     this.controller.write(
       Buffer.concat([
         preChecksum_padding_frame,
-        Buffer.from([checksum & 0xff]),
+        Buffer.from([checksum & 0xFF]),
       ]),
       true,
     );
@@ -340,6 +340,10 @@ export class Govee extends EventEmitter {
       Math.round(r * 255),
       Math.round(g * 255),
       Math.round(b * 255),
+      0x00,
+      0x00,
+      0x00,
+      0x00,
     ]);
   }
 
@@ -365,9 +369,9 @@ export class Govee extends EventEmitter {
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
-      0xff,
-      0xff,
-      0xff,
+      0xFF,
+      0xFF,
+      0xFF,
       0x01,
       Math.round(rgb[0] * 255),
       Math.round(rgb[1] * 255),
