@@ -2,6 +2,29 @@
 
 import { EventEmitter } from 'events';
 
+function hsvToRgb (h, s, v = 100) {
+    h /= 60.0
+    s /= 100.0
+    v /= 100.0
+    const C = v * s
+    const m = v - C
+    let x = (h % 2) - 1.0
+    if (x < 0) {
+        x = -x
+    }
+    x = C * (1.0 - x)
+    let r, g, b
+    switch (Math.floor(h) % 6) {
+        case 0: r = C + m; g = x + m; b = m; break
+        case 1: r = x + m; g = C + m; b = m; break
+        case 2: r = m; g = C + m; b = x + m; break
+        case 3: r = m; g = x + m; b = C + m; break
+        case 4: r = x + m; g = m; b = C + m; break
+        case 5: r = C + m; g = m; b = x + m; break
+    }
+    return { r: r, g: g, b: b }
+}
+
 export class Govee extends EventEmitter {
   public _noble: any;
   public _addr: any;
