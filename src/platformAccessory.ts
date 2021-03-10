@@ -1,10 +1,10 @@
 import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
 import noble from '@abandonware/noble';
 
-import { ExampleHomebridgePlatform } from './platform';
+import { GoveeHomebridgePlatform } from './platform';
 import { Govee } from './govee';
 
-export class ExamplePlatformAccessory {
+export class GoveePlatformAccessory {
   private service: Service;
 
   private states = {
@@ -13,25 +13,39 @@ export class ExamplePlatformAccessory {
     Saturation: 100,
     Hue: 360,
     ColorTemperature: 500,
+    Connected: false
   };
 
   private led: Govee;
 
   constructor(
-    private readonly platform: ExampleHomebridgePlatform,
+    private readonly platform: GoveeHomebridgePlatform,
     private readonly accessory: PlatformAccessory,
   ) {
-    this.led = new Govee(accessory.context.device.uniqueId, noble);
+    this.led = new Govee(accessory.context.device.macAddress, noble);
 
     this.led
-      .on('ble:disconnect', () => this.platform.log.debug('Lost connection'))
-      .on('reconnected', () => this.platform.log.debug('Reconnected'))
-      .on('disconnect', () => this.platform.log.debug('Disconnnect'))
-      .on('connected', () => this.platform.log.debug('Connected'));
+      .on('ble:disconnect', () => {
+          this.states.Connected = false;
+          this.platform.log.debug('Lost connection')
+      })
+      .on('reconnected', () => {
+          this.states.Connected = true;
+          this.platform.log.debug('Reconnected')
+      })
+      .on('disconnect', () => {
+          this.states.Connected = false;
+          this.platform.log.debug('Disconnnect')
+      })
+      .on('connected', () => {
+          this.states.Connected = true;
+          this.platform.log.debug('Connected')
+      });
 
     this.accessory.getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Govee')
       .setCharacteristic(this.platform.Characteristic.Model, 'H6179')
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device.macAddress)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.00.08')
       .setCharacteristic(this.platform.Characteristic.HardwareRevision, '1.00.01');
 
@@ -74,12 +88,13 @@ export class ExamplePlatformAccessory {
   }
 
   async getOn(): Promise<CharacteristicValue> {
+    if (!this.states.Connected) {
+        throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
     const isOn = this.states.On;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
-
-    // if you need to return an error to show the device as "Not Responding" in the Home app:
-    // throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
 
     return isOn;
   }
