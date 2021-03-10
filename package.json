@@ -27,7 +27,8 @@
     "homebridge-plugin"
   ],
   "dependencies": {
-    "@abandonware/noble": "^1.9.2-12"
+    "@abandonware/noble": "^1.9.2-12",
+    "homebridge-lib": "^5.0.12"
   },
   "devDependencies": {
     "@types/node": "^14.14.31",
