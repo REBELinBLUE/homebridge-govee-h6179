@@ -180,7 +180,9 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.POWER, state ? 0x1 : 0x0);
   }
 
-  setBrightness(brightness) {
+  setBrightness(value) {
+    const brightness = Number(value) / 100;
+
     if (Number.isNaN(brightness) || brightness > 1 || brightness < 0) {
       throw new Error('Brightness if not a valid percent');
     }

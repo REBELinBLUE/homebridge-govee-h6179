@@ -78,9 +78,9 @@ export class ExamplePlatformAccessory {
   async setOn(value: CharacteristicValue) {
     this.exampleStates.On = value as boolean;
 
-    this.led.setState(this.exampleStates.On);
-
     this.platform.log.debug('Set Characteristic On ->', value);
+
+    this.led.setState(this.exampleStates.On);
   }
 
   async getOn(): Promise<CharacteristicValue> {
@@ -98,9 +98,9 @@ export class ExamplePlatformAccessory {
   async setBrightness(value: CharacteristicValue) {
     this.exampleStates.Brightness = value as number;
 
-    this.led.setBrightness(this.exampleStates.Brightness);
-
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
+
+    this.led.setBrightness(this.exampleStates.Brightness);
   }
 
   async getBrightness(): Promise<CharacteristicValue> {
