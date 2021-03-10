@@ -22,9 +22,9 @@ export class ExamplePlatformAccessory {
   private exampleStates = {
     On: false,
     Brightness: 100,
-    Saturation: 0,
-    Hue: 0,
-    ColorTemperature: 140,
+    Saturation: 100,
+    Hue: 360,
+    ColorTemperature: 500,
   };
 
   private led: Govee;

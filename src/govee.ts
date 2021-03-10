@@ -13,7 +13,7 @@ export class Govee extends EventEmitter {
   public emit: any;
 
   //static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
-    static UUID_CONTROL_CHARACTERISTIC = '000102030405060708090a0b0c0d2b11';
+  static UUID_CONTROL_CHARACTERISTIC = '000102030405060708090a0b0c0d2b11';
 
   static Ping = Buffer.from([
     0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -180,13 +180,12 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.POWER, state ? 0x1 : 0x0);
   }
 
-  setBrightness(value) {
-    const foo = Number(value) / 100;
-    if (Number.isNaN(foo) || foo > 1 || foo < 0) {
+  setBrightness(brightness) {
+    if (Number.isNaN(brightness) || brightness > 1 || brightness < 0) {
       throw new Error('Brightness if not a valid percent');
     }
 
-    this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(foo* 0xFF));
+    this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(brightness * 0xFF));
   }
 
   setColor() {
