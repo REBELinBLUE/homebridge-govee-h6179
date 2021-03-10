@@ -129,6 +129,8 @@ export class ExamplePlatformAccessory {
     this.exampleStates.ColorTemperature = value as number;
 
     this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
+
+    this.led.setTemperature(this.exampleStates.ColorTemperature);
   }
 
   async getColorTemperature(): Promise<CharacteristicValue> {
