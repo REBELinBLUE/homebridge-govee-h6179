@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import { EventEmitter } from 'events';
-import { homebridgeLib } from 'homebridge-lib';
+import homebridgeLib from 'homebridge-lib';
 
 const {
     xyToHsv, hsvToRgb, ctToXy
