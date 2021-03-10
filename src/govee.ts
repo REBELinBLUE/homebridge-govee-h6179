@@ -41,7 +41,10 @@ export class Govee extends EventEmitter {
     this._ping = this._ping.bind(this);
     this._pingTimer;
 
+    console.log(self._addr.toLowerCase());
+
     this._noble.on('discover', (d) => {
+      console.log(d.address.toLowerCase() + ' ' + d.advertisement.localName)
       if (d.address.toLowerCase() !== self._addr.toLowerCase()) {
         return;
       }
