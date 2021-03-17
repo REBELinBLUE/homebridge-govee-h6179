@@ -27,7 +27,7 @@ export class GoveeAccessory implements AccessoryPlugin {
     this.led = new Govee(this.macAddress, noble);
 
     this.led
-      .on('discover', (device) => {
+      .on('discovered', (device) => {
         this.platform.log.debug(`Discovered ${device.advertisement.localName} - ${device.address}`);
       })
       .on('ble:disconnect', () => {
