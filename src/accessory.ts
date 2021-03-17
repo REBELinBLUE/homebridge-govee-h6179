@@ -1,13 +1,16 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import { AccessoryPlugin, Service, CharacteristicValue } from 'homebridge';
 import noble from '@abandonware/noble';
 
 import { GoveeHomebridgePlatform } from './platform';
 import { Govee } from './govee';
+import { AccessoryState } from './interfaces';
 
-export class GoveePlatformAccessory {
-  private service: Service;
+export class GoveeAccessory implements AccessoryPlugin {
+  private readonly informationService: Service;
+  private readonly lightbulbService: Service;
+  private readonly led: Govee;
 
-  private states = {
+  private state: AccessoryState = {
     On: false,
     Brightness: 100,
     Saturation: 100,
@@ -16,83 +19,83 @@ export class GoveePlatformAccessory {
     Connected: false,
   };
 
-  private led: Govee;
-
   constructor(
     private readonly platform: GoveeHomebridgePlatform,
-    private readonly accessory: PlatformAccessory,
+    public readonly name: string,
+    private readonly macAddress: string,
   ) {
-    this.led = new Govee(accessory.context.device.macAddress, noble);
+    this.led = new Govee(this.macAddress, noble);
 
     this.led
       .on('ble:disconnect', () => {
-        this.states.Connected = false;
+        this.state.Connected = false;
         this.platform.log.debug('Lost connection');
       })
       .on('reconnected', () => {
-        this.states.Connected = true;
+        this.state.Connected = true;
         this.platform.log.debug('Reconnected');
       })
       .on('disconnect', () => {
-        this.states.Connected = false;
+        this.state.Connected = false;
         this.platform.log.debug('Disconnnect');
       })
       .on('connected', () => {
-        this.states.Connected = true;
+        this.state.Connected = true;
         this.platform.log.debug('Connected');
       });
 
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
+    this.informationService = new this.platform.Service.AccessoryInformation()
+      .setCharacteristic(this.platform.Characteristic.Name, this.name)
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Govee')
       .setCharacteristic(this.platform.Characteristic.Model, 'H6179')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.device.macAddress)
+      .setCharacteristic(this.platform.Characteristic.SerialNumber, this.macAddress)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.00.08')
       .setCharacteristic(this.platform.Characteristic.HardwareRevision, '1.00.01');
 
-    this.service = this.accessory.getService(this.platform.Service.Lightbulb) || this.accessory.addService(this.platform.Service.Lightbulb);
+    this.lightbulbService = new this.platform.Service.Lightbulb(this.name);
 
-    this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.device.displayName);
-
-    this.service.getCharacteristic(this.platform.Characteristic.On)
+    this.lightbulbService.getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setOn.bind(this))
       .onGet(this.getOn.bind(this));
 
-    this.service.getCharacteristic(this.platform.Characteristic.Brightness)
+    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Brightness)
       .onSet(this.setBrightness.bind(this))
       .onGet(this.getBrightness.bind(this));
 
-    this.service.getCharacteristic(this.platform.Characteristic.Hue)
+    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Hue)
       .onSet(this.setHue.bind(this))
       .onGet(this.getHue.bind(this));
 
-    this.service.getCharacteristic(this.platform.Characteristic.Saturation)
+    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Saturation)
       .onSet(this.setSaturation.bind(this))
       .onGet(this.getSaturation.bind(this));
 
-    this.service.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+    this.lightbulbService.getCharacteristic(this.platform.Characteristic.ColorTemperature)
       .onSet(this.setColorTemperature.bind(this))
       .onGet(this.getColorTemperature.bind(this));
   }
 
+  getServices(): Service[] {
+    return [
+      this.informationService,
+      this.lightbulbService,
+    ];
+  }
+
   async setOn(value: CharacteristicValue) {
-    this.states.On = value as boolean;
+    this.state.On = value as boolean;
 
     this.platform.log.debug('Set Characteristic On ->', value);
 
-    this.led.setState(this.states.On);
-
-    if (this.states.On) {
-      this.led.setTemperature(this.states.ColorTemperature);
-      this.led.setColor(this.states.Hue, this.states.Saturation);
-    }
+    this.led.setState(this.state.On);
   }
 
   async getOn(): Promise<CharacteristicValue> {
-    if (!this.states.Connected) {
+    if (!this.state.Connected) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
-    const isOn = this.states.On;
+    const isOn = this.state.On;
 
     this.platform.log.debug('Get Characteristic On ->', isOn);
 
@@ -100,15 +103,15 @@ export class GoveePlatformAccessory {
   }
 
   async setBrightness(value: CharacteristicValue) {
-    this.states.Brightness = value as number;
+    this.state.Brightness = value as number;
 
     this.platform.log.debug('Set Characteristic Brightness -> ', value);
 
-    this.led.setBrightness(this.states.Brightness);
+    this.led.setBrightness(this.state.Brightness);
   }
 
   async getBrightness(): Promise<CharacteristicValue> {
-    const brightness = this.states.Brightness;
+    const brightness = this.state.Brightness;
 
     this.platform.log.debug('Get Characteristic Brightness -> ', brightness);
 
@@ -116,15 +119,15 @@ export class GoveePlatformAccessory {
   }
 
   async setHue(value: CharacteristicValue) {
-    this.states.Hue = value as number;
+    this.state.Hue = value as number;
 
     this.platform.log.debug('Set Characteristic Hue -> ', value);
 
-    this.led.setColor(this.states.Hue, this.states.Saturation);
+    this.led.setColor(this.state.Hue, this.state.Saturation);
   }
 
   async getHue(): Promise<CharacteristicValue> {
-    const hue = this.states.Hue;
+    const hue = this.state.Hue;
 
     this.platform.log.debug('Get Characteristic Hue -> ', hue);
 
@@ -132,15 +135,15 @@ export class GoveePlatformAccessory {
   }
 
   async setSaturation(value: CharacteristicValue) {
-    this.states.Saturation = value as number;
+    this.state.Saturation = value as number;
 
     this.platform.log.debug('Set Characteristic Saturation -> ', value);
 
-    this.led.setColor(this.states.Hue, this.states.Saturation);
+    this.led.setColor(this.state.Hue, this.state.Saturation);
   }
 
   async getSaturation(): Promise<CharacteristicValue> {
-    const saturation = this.states.Saturation;
+    const saturation = this.state.Saturation;
 
     this.platform.log.debug('Get Characteristic Saturation -> ', saturation);
 
@@ -148,15 +151,15 @@ export class GoveePlatformAccessory {
   }
 
   async setColorTemperature(value: CharacteristicValue) {
-    this.states.ColorTemperature = value as number;
+    this.state.ColorTemperature = value as number;
 
     this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
 
-    this.led.setTemperature(this.states.ColorTemperature);
+    this.led.setTemperature(this.state.ColorTemperature);
   }
 
   async getColorTemperature(): Promise<CharacteristicValue> {
-    const colorTemperature = this.states.ColorTemperature;
+    const colorTemperature = this.state.ColorTemperature;
 
     this.platform.log.debug('Get Characteristic ColorTemperature -> ', colorTemperature);
 

@@ -1,29 +1,33 @@
-// @ts-nocheck
-
 import { EventEmitter } from 'events';
+import { Characteristic, Peripheral, Service } from '@abandonware/noble';
 import homebridgeLib from 'homebridge-lib';
+
+import { LedCommands, LedModes } from './interfaces';
+import Timeout = NodeJS.Timeout;
 
 const { hsvToRgb } = homebridgeLib.Colour;
 
+function normalisedCompare(uuid1: string, uuid2: string): boolean {
+  const normalise = (str: string): string => str.replace('-', '').toLowerCase();
+
+  return normalise(uuid1) === normalise(uuid2);
+}
+
 export class Govee extends EventEmitter {
-  public _noble: any;
-  public _addr: any;
-  public _disconect_called: any;
-  public _pingTimer: any;
-  public controller: any;
-  public on: any;
-  public _dev: any;
-  public emit: any;
+  public disconnectCalled = false;
+  public _pingTimer: Timeout | undefined;
+  public controller: Characteristic | undefined;
+  public device: Peripheral | undefined;
 
   //static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
   static UUID_CONTROL_CHARACTERISTIC = '000102030405060708090a0b0c0d2b11';
 
-  static Ping = Buffer.from([
+  static Ping: Buffer = Buffer.from([
     0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xAB,
   ]);
 
-  static SHADES_OF_WHITE = [
+  static SHADES_OF_WHITE: string[] = [
     '#ff8d0b',
     '#ff8912',
     '#ff921d',
@@ -168,59 +172,60 @@ export class Govee extends EventEmitter {
     '#d6e1ff',
   ];
 
-  static LedCommand = {
+  static LedCommand: LedCommands = {
     POWER: 0x01,
     BRIGHTNESS: 0x04,
     COLOR: 0x05,
   };
 
-  static LedMode = {
+  static LedMode: LedModes = {
     MANUAL: 0x02,
     MICROPHONE: 0x06,
     SCENES: 0x05,
   };
 
-  constructor(address, noble?) {
+  constructor(
+    public readonly address: string,
+    public readonly noble: any, // eslint-disable-line @typescript-eslint/no-explicit-any
+  ) {
     super();
+
     const self = this; // eslint-disable-line
 
-    this._noble = noble;
-    this._addr = address;
-    this._disconect_called = false;
+    this.disconnectCalled = false;
     this._ping = this._ping.bind(this);
-    this._pingTimer;
+    // this._pingTimer = null;
 
-    this._noble.on('discover', (d) => {
-      if (d.address.toLowerCase() !== self._addr.toLowerCase()) {
+    this.noble.on('discover', (device: Peripheral) => {
+      if (device.address.toLowerCase() !== self.address.toLowerCase()) {
         return;
       }
 
-      self._noble.stopScanning();
+      self.noble.stopScanning();
       self.emit('located');
 
-      d.on('disconnect', async () => {
+      device.on('disconnect', async () => {
         self.emit('ble:disconnect');
         self.controller = undefined;
-        // console.log('disconnected device');
 
-        if (self._disconect_called) {
+        if (self.disconnectCalled) {
           self.emit('disconnect');
         } else {
           await self.reconnect();
         }
       });
 
-      d.connect(() => {
-        self._dev = d;
+      device.connect(() => {
+        self.device = device;
 
-        d.discoverSomeServicesAndCharacteristics(
+        device.discoverSomeServicesAndCharacteristics(
           [],
           [],
-          (_, service, chars) => {
-            // console.log(service, chars)
+          (_: string, service: Service[], chars: Characteristic[]) => {
             for (const char of chars) {
-              if (char.uuid.replace('-', '').toLowerCase() === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '').toLowerCase()) {
+              if (normalisedCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
                 setTimeout(() => self.emit('connected'), 500);
+
                 self._pingTimer = setInterval(self._ping, 2000);
                 self.controller = char;
               }
@@ -231,25 +236,23 @@ export class Govee extends EventEmitter {
     });
 
     process.nextTick(() => {
-      self._noble.startScanning([], false);
+      self.noble.startScanning([], false);
     });
   }
 
-  reconnect() {
+  reconnect(): Promise<void> {
     const self = this; // eslint-disable-line
 
-    // console.log('reconnecting')
     return new Promise((res) => {
-      self._dev.connect(() => {
-        self._dev.discoverSomeServicesAndCharacteristics(
+      self.device?.connect(() => {
+        self.device?.discoverSomeServicesAndCharacteristics(
           [],
           [],
-          (_, service, chars) => {
-            // console.log(service, chars)
+          (_: string, service: Service[], chars: Characteristic[]) => {
             for (const char of chars) {
-              if (char.uuid.replace('-', '').toLowerCase() === Govee.UUID_CONTROL_CHARACTERISTIC.replace('-', '').toLowerCase()) {
-                // console.log('reconnected')
+              if (normalisedCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
                 setTimeout(() => self.emit('reconnected'), 500);
+
                 self.controller = char;
                 res();
               }
@@ -260,17 +263,17 @@ export class Govee extends EventEmitter {
     });
   }
 
-  disconnect() {
-    this._disconect_called = true;
+  disconnect(): Promise<void> {
+    this.disconnectCalled = true;
     const self = this; // eslint-disable-line
 
     return new Promise((res) => {
-      if (self._dev) {
-        // console.log(self._dev)
-        // console.log("disconnecting device");
-        self._dev.disconnect(() => {
-          // console.log("disconnected.");
-          clearTimeout(self._pingTimer);
+      if (self.device) {
+        self.device.disconnect(() => {
+          if (self._pingTimer) {
+            clearTimeout(self._pingTimer);
+          }
+
           res();
         });
       } else {
@@ -279,7 +282,7 @@ export class Govee extends EventEmitter {
     });
   }
 
-  _ping() {
+  _ping(): void {
     if (!this.controller) {
       throw new Error('Not connected');
     }
@@ -287,19 +290,19 @@ export class Govee extends EventEmitter {
     this.controller.write(Govee.Ping, true);
   }
 
-  _send(cmd, payload) {
+  _send(command: number, payload: number | number[]): void {
     if (!this.controller) {
       throw new Error('Not connected');
     }
 
-    cmd = cmd & 0xFF;
+    const cmd = command & 0xFF;
 
     const preChecksum_frame = Buffer.concat([
       Buffer.from([0x33, cmd].flat()),
       Buffer.from([payload].flat()),
     ]);
 
-    const preChecksum_padding_frame = Buffer.concat([
+    const preChecksum_padding_frame: Buffer = Buffer.concat([
       preChecksum_frame,
       Buffer.from(new Array(19 - preChecksum_frame.length).fill(0)),
     ]);
@@ -318,11 +321,11 @@ export class Govee extends EventEmitter {
     );
   }
 
-  setState(state) {
+  setState(state: boolean): void {
     this._send(Govee.LedCommand.POWER, state ? 0x1 : 0x0);
   }
 
-  setBrightness(value) {
+  setBrightness(value: number): void {
     const brightness = Number(value) / 100;
 
     if (Number.isNaN(brightness) || brightness > 1 || brightness < 0) {
@@ -332,7 +335,7 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(brightness * 0xFF));
   }
 
-  setColor(hue, sat) {
+  setColor(hue: number, sat: number): void {
     const { r, g, b } = hsvToRgb(hue, sat);
 
     this._send(Govee.LedCommand.COLOR, [
@@ -347,7 +350,7 @@ export class Govee extends EventEmitter {
     ]);
   }
 
-  setTemperature(value) {
+  setTemperature(value: number): void {
     // Supply a value between -1 (warm) and 1 (cold)
     // if (Number.isNaN(value) || value > 1 || value < -1) {
     //     throw new Error('Temperature if not a valid');
@@ -360,12 +363,9 @@ export class Govee extends EventEmitter {
     white = Govee.SHADES_OF_WHITE[Math.floor(Math.random() * Govee.SHADES_OF_WHITE.length)];
 
     const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
-
-    const rgb = [
-      parseInt(bits[1], 16),
-      parseInt(bits[2], 16),
-      parseInt(bits[3], 16),
-    ];
+    if (!bits || bits.length !== 3) {
+      return;
+    }
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
@@ -373,9 +373,9 @@ export class Govee extends EventEmitter {
       0xFF,
       0xFF,
       0x01,
-      Math.round(rgb[0] * 255),
-      Math.round(rgb[1] * 255),
-      Math.round(rgb[2] * 255),
+      Math.round(parseInt(bits[0], 16) * 255),
+      Math.round(parseInt(bits[1], 16) * 255),
+      Math.round(parseInt(bits[2], 16) * 255),
     ]);
   }
 }
