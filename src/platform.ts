@@ -24,11 +24,11 @@ export class GoveeHomebridgePlatform implements StaticPlatformPlugin {
       this.config.devices = [];
     }
 
-    for (let i = 0; i < this.config.devices.length; i++) {
-      const { name, address } = this.config.devices[i];
+    this.config.devices.forEach(device => {
+      const { name, address } = device;
 
       accessories.push(new GoveeAccessory(this, name, address));
-    }
+    });
 
     callback(accessories);
   }
