@@ -28,7 +28,7 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     this.led
       .on('discovered', (device) => {
-        this.platform.log.debug(`Discovered ${device.advertisement.localName} - ${device.address}`);
+        this.platform.log.debug(`Discovered BLE device ${device.advertisement.localName} - ${device.address}`);
       })
       .on('ble:disconnect', () => {
         this.state.Connected = false;
@@ -88,7 +88,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async setOn(value: CharacteristicValue) {
     this.state.On = value as boolean;
 
-    this.platform.log.debug('Set Characteristic On ->', value);
+    this.platform.log.debug(`[${this.name}] Set Characteristic On ->`, value);
 
     this.led.setState(this.state.On);
   }
@@ -100,7 +100,7 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     const isOn = this.state.On;
 
-    this.platform.log.debug('Get Characteristic On ->', isOn);
+    this.platform.log.debug(`[${this.name}] Get Characteristic On ->`, isOn);
 
     return isOn;
   }
@@ -108,7 +108,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async setBrightness(value: CharacteristicValue) {
     this.state.Brightness = value as number;
 
-    this.platform.log.debug('Set Characteristic Brightness -> ', value);
+    this.platform.log.debug(`[${this.name}] Set Characteristic Brightness ->`, value);
 
     this.led.setBrightness(this.state.Brightness);
   }
@@ -116,7 +116,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async getBrightness(): Promise<CharacteristicValue> {
     const brightness = this.state.Brightness;
 
-    this.platform.log.debug('Get Characteristic Brightness -> ', brightness);
+    this.platform.log.debug(`[${this.name}] Get Characteristic Brightness ->`, brightness);
 
     return brightness;
   }
@@ -124,7 +124,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async setHue(value: CharacteristicValue) {
     this.state.Hue = value as number;
 
-    this.platform.log.debug('Set Characteristic Hue -> ', value);
+    this.platform.log.debug(`[${this.name}] Set Characteristic Hue ->`, value);
 
     this.led.setColor(this.state.Hue, this.state.Saturation);
   }
@@ -132,7 +132,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async getHue(): Promise<CharacteristicValue> {
     const hue = this.state.Hue;
 
-    this.platform.log.debug('Get Characteristic Hue -> ', hue);
+    this.platform.log.debug(`[${this.name}] Get Characteristic Hue ->`, hue);
 
     return hue;
   }
@@ -140,7 +140,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async setSaturation(value: CharacteristicValue) {
     this.state.Saturation = value as number;
 
-    this.platform.log.debug('Set Characteristic Saturation -> ', value);
+    this.platform.log.debug(`[${this.name}] Set Characteristic Saturation ->`, value);
 
     this.led.setColor(this.state.Hue, this.state.Saturation);
   }
@@ -148,7 +148,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async getSaturation(): Promise<CharacteristicValue> {
     const saturation = this.state.Saturation;
 
-    this.platform.log.debug('Get Characteristic Saturation -> ', saturation);
+    this.platform.log.debug(`[${this.name}] Get Characteristic Saturation ->`, saturation);
 
     return saturation;
   }
@@ -156,7 +156,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async setColorTemperature(value: CharacteristicValue) {
     this.state.ColorTemperature = value as number;
 
-    this.platform.log.debug('Set Characteristic ColorTemperature -> ', value);
+    this.platform.log.debug(`[${this.name}] Set Characteristic ColorTemperature ->`, value);
 
     this.led.setTemperature(this.state.ColorTemperature);
   }
@@ -164,7 +164,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   async getColorTemperature(): Promise<CharacteristicValue> {
     const colorTemperature = this.state.ColorTemperature;
 
-    this.platform.log.debug('Get Characteristic ColorTemperature -> ', colorTemperature);
+    this.platform.log.debug(`[${this.name}] Get Characteristic ColorTemperature ->`, colorTemperature);
 
     return colorTemperature;
   }
