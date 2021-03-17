@@ -192,6 +192,8 @@ export class Govee extends EventEmitter {
     // this._pingTimer = null;
 
     this.noble.on('discover', (device: Peripheral) => {
+      self.emit('discover', { device });
+
       if (device.address.toLowerCase() !== self.address.toLowerCase()) {
         return;
       }

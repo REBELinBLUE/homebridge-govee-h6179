@@ -27,6 +27,9 @@ export class GoveeAccessory implements AccessoryPlugin {
     this.led = new Govee(this.macAddress, noble);
 
     this.led
+      .on('discover', (device) => {
+        this.platform.log.debug(`Discovered ${device.advertisement.localName} - ${device.address}`);
+      })
       .on('ble:disconnect', () => {
         this.state.Connected = false;
         this.platform.log.debug(`[${this.name}] Lost connection`);
@@ -37,7 +40,7 @@ export class GoveeAccessory implements AccessoryPlugin {
       })
       .on('disconnect', () => {
         this.state.Connected = false;
-        this.platform.log.debug(`[${this.name}] Disconnnect`);
+        this.platform.log.debug(`[${this.name}] Disconnected`);
       })
       .on('connected', () => {
         this.state.Connected = true;
