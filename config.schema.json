@@ -1,36 +1,29 @@
 {
   "pluginAlias": "GoveeH6179",
-  "pluginType": "platform",
+  "pluginType": "accessory",
   "singular": true,
   "headerDisplay": "This plugin is provided by [REBELinBLUE](https://github.com/REBELinBLUE/)",
   "schema": {
-    "devices": {
-      "title": "Devices",
-      "type": "array",
-      "required": true,
-      "items": {
-        "type": "object",
-        "required": [
-          "name",
-          "address"
-        ],
-        "properties": {
-          "name": {
-            "title": "Name",
-            "description": "The name of your light",
-            "type": "string",
-            "default": "Govee H6179",
-            "minLength": 1,
-            "required": true
-          },
-          "password": {
-            "address": "MAC Address",
-            "description": "The bluetooth MAC address",
-            "type": "string",
-            "pattern": "^([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}$",
-            "required": true
-          }
-        }
+    "type": "object",
+    "required": [
+      "name",
+      "address"
+    ],
+    "properties": {
+      "name": {
+        "title": "Name",
+        "description": "The name of your light",
+        "type": "string",
+        "default": "Govee H6179",
+        "minLength": 1,
+        "required": true
+      },
+      "password": {
+        "address": "MAC Address",
+        "description": "The bluetooth MAC address",
+        "type": "string",
+        "pattern": "^([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}$",
+        "required": true
       }
     }
   }
