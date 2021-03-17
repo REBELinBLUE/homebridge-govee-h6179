@@ -1,7 +1,7 @@
 {
   "pluginAlias": "GoveeH6179",
   "pluginType": "platform",
-  "singular": false,
+  "singular": true,
   "headerDisplay": "This plugin is provided by [REBELinBLUE](https://github.com/REBELinBLUE/)",
   "schema": {
     "devices": {
