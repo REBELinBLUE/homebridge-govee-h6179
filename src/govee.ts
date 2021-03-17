@@ -2,16 +2,11 @@ import { EventEmitter } from 'events';
 import { Characteristic, Peripheral, Service } from '@abandonware/noble';
 import homebridgeLib from 'homebridge-lib';
 
+import { normalisedCompare } from './utils';
 import { LedCommands, LedModes } from './interfaces';
 import Timeout = NodeJS.Timeout;
 
 const { hsvToRgb } = homebridgeLib.Colour;
-
-function normalisedCompare(uuid1: string, uuid2: string): boolean {
-  const normalise = (str: string): string => str.replace('-', '').toLowerCase();
-
-  return normalise(uuid1) === normalise(uuid2);
-}
 
 export class Govee extends EventEmitter {
   public disconnectCalled = false;

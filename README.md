@@ -16,7 +16,7 @@ These libraries and their dependencies are required by the [Noble](https://www.n
 sudo apt-get install bluetooth bluez libbluetooth-dev libudev-dev
 ```
 
-For more detailed information and descriptions for other platforms please see the [Noble documentation](https://github.com/noble/noble#readme).
+For more detailed information and descriptions for other platforms please see the [Noble documentation](https://github.com/abandonware/noble#readme).
 
 ### Install homebridge and this plugin
 ```
@@ -37,7 +37,7 @@ You'll need to grant the node binary cap_net_raw privileges:
 sudo setcap cap_net_raw+eip $(eval readlink -f `which node`)
 ```
 
-Please see the [Noble documentation](https://github.com/noble/noble#running-without-rootsudo) for more details.
+Please see the [Noble documentation](https://github.com/abandonware/noble#running-without-rootsudo) for more details.
 
 ### Configuration
 Homebridge is setup via `config.json` file sitting in the `~/.homebridge/` directory.

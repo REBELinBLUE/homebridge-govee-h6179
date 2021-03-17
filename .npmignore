@@ -1,11 +1,8 @@
 src/
 .github/
 node_modules/
+.editorconfig
 .eslintrc
-tsconfig.json
+.nvmrc
 nodemon.json
-*.tsbuildinfo
-.npm
-.eslintcache
-.node_repl_history
-*.tgz
+tsconfig.json
