@@ -18,10 +18,18 @@ export class GoveeHomebridgePlatform implements StaticPlatformPlugin {
   }
 
   accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): void {
-    const { address, name } = this.config.devices[0];
+    const accessories: GoveeAccessory[] = [];
 
-    callback([
-      new GoveeAccessory(this, name, address),
-    ]);
+    if (!this.config.devices || !Array.isArray(this.config.devices)) {
+      this.config.devices = [];
+    }
+
+    for (let i = 0; i < this.config.devices.length; i++) {
+      const { name, address } = this.config.devices[i];
+
+      accessories.push(new GoveeAccessory(this, name, address));
+    }
+
+    callback(accessories);
   }
 }

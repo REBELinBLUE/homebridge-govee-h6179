@@ -32,19 +32,19 @@ export class GoveeAccessory implements AccessoryPlugin {
       })
       .on('ble:disconnect', () => {
         this.state.Connected = false;
-        this.platform.log.debug(`[${this.name}] Lost connection`);
+        this.platform.log.info(`[${this.name}] Connection lost`);
       })
       .on('reconnected', () => {
         this.state.Connected = true;
-        this.platform.log.debug(`[${this.name}] Reconnected`);
+        this.platform.log.info(`[${this.name}] Reconnected`);
       })
       .on('disconnect', () => {
         this.state.Connected = false;
-        this.platform.log.debug(`[${this.name}] Disconnected`);
+        this.platform.log.info(`[${this.name}] Disconnected`);
       })
       .on('connected', () => {
         this.state.Connected = true;
-        this.platform.log.debug(`[${this.name}] Connected`);
+        this.platform.log.info(`[${this.name}] Connected`);
       });
 
     this.informationService = new this.platform.Service.AccessoryInformation()
