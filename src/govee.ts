@@ -359,7 +359,7 @@ export class Govee extends EventEmitter {
 
     const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
     if (!bits || bits.length !== 3) {
-     throw new Error('Not a valid hex code');
+      throw new Error('Not a valid hex code');
     }
 
     this._send(Govee.LedCommand.COLOR, [
