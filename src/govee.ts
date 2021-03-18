@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { Characteristic, Peripheral, Service } from '@abandonware/noble';
 import homebridgeLib from 'homebridge-lib';
+import noble from '@abandonware/noble';
 
 import { normalisedCompare } from './utils';
 import { LedCommands, LedModes } from './interfaces';
@@ -179,10 +180,7 @@ export class Govee extends EventEmitter {
     SCENES: 0x05,
   };
 
-  constructor(
-    public readonly address: string,
-    public readonly noble: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-  ) {
+  constructor(public readonly address: string) {
     super();
 
     const self = this; // eslint-disable-line
@@ -191,14 +189,14 @@ export class Govee extends EventEmitter {
     this._ping = this._ping.bind(this);
     // this._pingTimer = null;
 
-    this.noble.on('discover', (device: Peripheral) => {
+    noble.on('discover', (device: Peripheral) => {
       self.emit('discovered', device);
 
       if (device.address.toLowerCase() !== self.address.toLowerCase()) {
         return;
       }
 
-      self.noble.stopScanning();
+      noble.stopScanning();
       self.emit('located');
 
       device.on('disconnect', async () => {
@@ -233,7 +231,7 @@ export class Govee extends EventEmitter {
     });
 
     process.nextTick(() => {
-      self.noble.startScanning([], false);
+      noble.startScanning([], false);
     });
   }
 
@@ -361,7 +359,7 @@ export class Govee extends EventEmitter {
 
     const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
     if (!bits || bits.length !== 3) {
-      return;
+     throw new Error('Not a valid hex code');
     }
 
     this._send(Govee.LedCommand.COLOR, [

@@ -1,5 +1,4 @@
 import { AccessoryPlugin, Service, CharacteristicValue } from 'homebridge';
-import noble from '@abandonware/noble';
 
 import { GoveeHomebridgePlatform } from './platform';
 import { Govee } from './govee';
@@ -24,7 +23,7 @@ export class GoveeAccessory implements AccessoryPlugin {
     public readonly name: string,
     private readonly macAddress: string,
   ) {
-    this.led = new Govee(this.macAddress, noble);
+    this.led = new Govee(this.macAddress);
 
     this.led
       .on('discovered', (device) => {
