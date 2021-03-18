@@ -35,12 +35,12 @@ export class GoveeAccessory implements AccessoryPlugin {
 
   initDeviceDiscovery(): void {
     this.led
-      .on('discovered', this.discovered)
-      .on('ble:disconnect', this.disconnect)
-      .on('reconnected', this.reconnected)
-      .on('disconnected', this.discovered)
-      .on('located', this.located)
-      .on('connected', this.connected);
+      .on('discovered', this.discovered.bind(this))
+      .on('ble:disconnect', this.disconnect.bind(this))
+      .on('reconnected', this.reconnected.bind(this))
+      .on('disconnected', this.discovered.bind(this))
+      .on('located', this.located.bind(this))
+      .on('connected', this.connected.bind(this));
   }
 
   initInformationService(): void {
@@ -79,7 +79,6 @@ export class GoveeAccessory implements AccessoryPlugin {
       .onSet(this.setColorTemperature.bind(this))
       .onGet(this.getColorTemperature.bind(this));
   }
-
 
   disconnect(): void {
     this.state.Connected = false;

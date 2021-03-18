@@ -26,7 +26,7 @@ export function hexToRgb(hex: string): RGB {
     r: parseInt(bits[1], 16),
     g: parseInt(bits[2], 16),
     b: parseInt(bits[3], 16),
-  }
+  };
 }
 
 /**
