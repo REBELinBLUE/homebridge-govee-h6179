@@ -1,6 +1,12 @@
-const normalise = (str: string): string => str.replace('-', '').toLowerCase();
+export function normalisedUuidCompare(uuid1: string, uuid2: string): boolean {
+  const normaliseUuid = (str: string): string => str.replace(/-/g, '').toLowerCase();
 
-export function normalisedCompare(uuid1: string, uuid2: string): boolean {
-  return normalise(uuid1) === normalise(uuid2);
+  return normaliseUuid(uuid1) === normaliseUuid(uuid2);
+}
+
+export function normalisedMacCompare(mac1: string, mac2: string): boolean {
+  const normaliseMac = (str: string): string => str.replace(/:/g, '').toLowerCase();
+
+  return normaliseMac(mac1) === normaliseMac(mac2);
 }
 

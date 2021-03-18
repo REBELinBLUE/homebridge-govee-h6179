@@ -1,4 +1,5 @@
 import { AccessoryPlugin, Service, CharacteristicValue } from 'homebridge';
+import { Peripheral } from '@abandonware/noble';
 
 import { GoveeHomebridgePlatform } from './platform';
 import { Govee } from './govee';
@@ -24,57 +25,92 @@ export class GoveeAccessory implements AccessoryPlugin {
     private readonly macAddress: string,
   ) {
     this.led = new Govee(this.macAddress);
+    this.informationService = new this.platform.Service.AccessoryInformation();
+    this.lightbulbService = new this.platform.Service.Lightbulb(this.name);
 
+    this.initDeviceDiscovery();
+    this.initInformationService();
+    this.initLightbulbService();
+  }
+
+  initDeviceDiscovery(): void {
     this.led
-      .on('discovered', (device) => {
-        this.platform.log.debug(`Discovered BLE device ${device.advertisement.localName} - ${device.address}`);
-      })
-      .on('ble:disconnect', () => {
-        this.state.Connected = false;
-        this.platform.log.info(`[${this.name}] Connection lost`);
-      })
-      .on('reconnected', () => {
-        this.state.Connected = true;
-        this.platform.log.info(`[${this.name}] Reconnected`);
-      })
-      .on('disconnect', () => {
-        this.state.Connected = false;
-        this.platform.log.info(`[${this.name}] Disconnected`);
-      })
-      .on('connected', () => {
-        this.state.Connected = true;
-        this.platform.log.info(`[${this.name}] Connected`);
-      });
+      .on('discovered', this.discovered)
+      .on('ble:disconnect', this.disconnect)
+      .on('reconnected', this.reconnected)
+      .on('disconnected', this.discovered)
+      .on('located', this.located)
+      .on('connected', this.connected);
+  }
 
-    this.informationService = new this.platform.Service.AccessoryInformation()
+  initInformationService(): void {
+    this.informationService
       .setCharacteristic(this.platform.Characteristic.Name, this.name)
       .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Govee')
       .setCharacteristic(this.platform.Characteristic.Model, 'H6179')
       .setCharacteristic(this.platform.Characteristic.SerialNumber, this.macAddress)
       .setCharacteristic(this.platform.Characteristic.FirmwareRevision, '1.00.08')
       .setCharacteristic(this.platform.Characteristic.HardwareRevision, '1.00.01');
+  }
 
-    this.lightbulbService = new this.platform.Service.Lightbulb(this.name);
-
-    this.lightbulbService.getCharacteristic(this.platform.Characteristic.On)
+  initLightbulbService(): void {
+    this.lightbulbService
+      .getCharacteristic(this.platform.Characteristic.On)
       .onSet(this.setOn.bind(this))
       .onGet(this.getOn.bind(this));
 
-    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Brightness)
+    this.lightbulbService
+      .getCharacteristic(this.platform.Characteristic.Brightness)
       .onSet(this.setBrightness.bind(this))
       .onGet(this.getBrightness.bind(this));
 
-    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Hue)
+    this.lightbulbService
+      .getCharacteristic(this.platform.Characteristic.Hue)
       .onSet(this.setHue.bind(this))
       .onGet(this.getHue.bind(this));
 
-    this.lightbulbService.getCharacteristic(this.platform.Characteristic.Saturation)
+    this.lightbulbService
+      .getCharacteristic(this.platform.Characteristic.Saturation)
       .onSet(this.setSaturation.bind(this))
       .onGet(this.getSaturation.bind(this));
 
-    this.lightbulbService.getCharacteristic(this.platform.Characteristic.ColorTemperature)
+    this.lightbulbService
+      .getCharacteristic(this.platform.Characteristic.ColorTemperature)
       .onSet(this.setColorTemperature.bind(this))
       .onGet(this.getColorTemperature.bind(this));
+  }
+
+
+  disconnect(): void {
+    this.state.Connected = false;
+
+    this.platform.log.info(`[${this.name}] Connection lost`);
+  }
+
+  discovered(device: Peripheral): void {
+    this.platform.log.debug(`Discovered BLE device ${device.advertisement.localName} - ${device.address}`);
+  }
+
+  located(device: Peripheral): void {
+    this.platform.log.info(`${this.name}] Found on ${device.address}`);
+  }
+
+  connected(): void {
+    this.state.Connected = true;
+
+    this.platform.log.info(`[${this.name}] Connected`);
+  }
+
+  disconnected(): void {
+    this.state.Connected = false;
+
+    this.platform.log.info(`[${this.name}] Disconnected`);
+  }
+
+  reconnected(): void {
+    this.state.Connected = true;
+
+    this.platform.log.info(`[${this.name}] Reconnected`);
   }
 
   getServices(): Service[] {

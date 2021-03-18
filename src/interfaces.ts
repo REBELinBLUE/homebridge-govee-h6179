@@ -18,3 +18,8 @@ export interface LedModes {
   MICROPHONE: number;
   SCENES: number;
 }
+
+export interface DeviceConfig {
+  name: string;
+  address: string;
+}

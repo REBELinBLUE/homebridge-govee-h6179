@@ -3,7 +3,7 @@ import { Characteristic, Peripheral, Service } from '@abandonware/noble';
 import homebridgeLib from 'homebridge-lib';
 import noble from '@abandonware/noble';
 
-import { normalisedCompare } from './utils';
+import { normalisedMacCompare, normalisedUuidCompare } from './utils';
 import { LedCommands, LedModes } from './interfaces';
 import Timeout = NodeJS.Timeout;
 
@@ -15,8 +15,7 @@ export class Govee extends EventEmitter {
   public controller: Characteristic | undefined;
   public device: Peripheral | undefined;
 
-  //static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
-  static UUID_CONTROL_CHARACTERISTIC = '000102030405060708090a0b0c0d2b11';
+  static UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11';
 
   static Ping: Buffer = Buffer.from([
     0xAA, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -192,19 +191,19 @@ export class Govee extends EventEmitter {
     noble.on('discover', (device: Peripheral) => {
       self.emit('discovered', device);
 
-      if (device.address.toLowerCase() !== self.address.toLowerCase()) {
+      if (!normalisedMacCompare(device.address, self.address)) {
         return;
       }
 
       noble.stopScanning();
-      self.emit('located');
+      self.emit('located', device);
 
       device.on('disconnect', async () => {
         self.emit('ble:disconnect');
         self.controller = undefined;
 
         if (self.disconnectCalled) {
-          self.emit('disconnect');
+          self.emit('disconnected');
         } else {
           await self.reconnect();
         }
@@ -218,7 +217,7 @@ export class Govee extends EventEmitter {
           [],
           (_: string, service: Service[], chars: Characteristic[]) => {
             for (const char of chars) {
-              if (normalisedCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
+              if (normalisedUuidCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
                 setTimeout(() => self.emit('connected'), 500);
 
                 self._pingTimer = setInterval(self._ping, 2000);
@@ -245,7 +244,7 @@ export class Govee extends EventEmitter {
           [],
           (_: string, service: Service[], chars: Characteristic[]) => {
             for (const char of chars) {
-              if (normalisedCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
+              if (normalisedUuidCompare(char.uuid, Govee.UUID_CONTROL_CHARACTERISTIC)) {
                 setTimeout(() => self.emit('reconnected'), 500);
 
                 self.controller = char;
