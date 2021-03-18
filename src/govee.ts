@@ -1,13 +1,10 @@
 import { EventEmitter } from 'events';
 import { Characteristic, Peripheral, Service } from '@abandonware/noble';
-import homebridgeLib from 'homebridge-lib';
 import noble from '@abandonware/noble';
 
-import { normalisedMacCompare, normalisedUuidCompare } from './utils';
+import { hexToRgb, hsvToRgb, normalisedMacCompare, normalisedUuidCompare} from './utils';
 import { LedCommands, LedModes } from './interfaces';
 import Timeout = NodeJS.Timeout;
-
-const { hsvToRgb } = homebridgeLib.Colour;
 
 export class Govee extends EventEmitter {
   public disconnectCalled = false;
@@ -329,14 +326,14 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(brightness * 0xFF));
   }
 
-  setColor(hue: number, sat: number): void {
-    const { r, g, b } = hsvToRgb(hue, sat);
+  setColor(hue: number, saturation: number): void {
+    const { r, g, b } = hsvToRgb(hue, saturation);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
-      Math.round(r * 255),
-      Math.round(g * 255),
-      Math.round(b * 255),
+      r,
+      g,
+      b,
       0x00,
       0x00,
       0x00,
@@ -356,10 +353,7 @@ export class Govee extends EventEmitter {
 
     white = Govee.SHADES_OF_WHITE[Math.floor(Math.random() * Govee.SHADES_OF_WHITE.length)];
 
-    const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(white);
-    if (!bits || bits.length !== 3) {
-      throw new Error('Not a valid hex code');
-    }
+    const { r, g, b } = hexToRgb(white);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
@@ -367,9 +361,9 @@ export class Govee extends EventEmitter {
       0xFF,
       0xFF,
       0x01,
-      Math.round(parseInt(bits[0], 16) * 255),
-      Math.round(parseInt(bits[1], 16) * 255),
-      Math.round(parseInt(bits[2], 16) * 255),
+      r,
+      g,
+      b,
     ]);
   }
 }

@@ -35,8 +35,7 @@
     "tv backlight"
   ],
   "dependencies": {
-    "@abandonware/noble": "^1.9.2-12",
-    "homebridge-lib": "^5.1.0"
+    "@abandonware/noble": "^1.9.2-12"
   },
   "devDependencies": {
     "@types/chai": "^4.2.15",

@@ -8,6 +8,7 @@ it('throws an error if devices is not set', () => {
     const config: PlatformConfig = createMock<PlatformConfig>();
     const api: API = createMock<API>();
 
-    const platform = new GoveeHomebridgePlatform(logger, config, api);
+    expect('foo').toBe('foo');
+    // const platform = new GoveeHomebridgePlatform(logger, config, api);
   })
 })

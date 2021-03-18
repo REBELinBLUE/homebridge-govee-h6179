@@ -49,3 +49,4 @@ This work is licensed under the MIT license. See [license](LICENSE) for more det
 ## Credits
 
 Govee Client based on [nanoguy0/govee-led-client](https://gitlab.com/nanoguy0/govee-led-client) by Ben Bartrim.
+HsvToRgb from [ebaauw/homebridge-lib](https://github.com/ebaauw/homebridge-lib) by Erik Baauw.
