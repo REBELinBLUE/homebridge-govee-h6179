@@ -60,45 +60,44 @@ describe('Utils', () => {
     });
 
     it('should convert to RGB', () => {
-      const rgb: RGB = hexToRgb('#ff0000');
+      const colour: RGB = hexToRgb('#ff0000');
 
-      expect(rgb).toEqual({
-        r: 255,
-        g: 0,
-        b: 0,
+      expect(colour).toEqual({
+        Red: 255,
+        Green: 0,
+        Blue: 0,
       });
     });
   });
 
   describe('hsvToRgb', () => {
     it('should convert to Red', () => {
-      const rgb: RGB = hsvToRgb(0, 100, 100);
+      const colour: RGB = hsvToRgb(0, 100, 100);
 
-      expect(rgb).toEqual({
-        r: 255,
-        g: 0,
-        b: 0,
+      expect(colour).toEqual({
+        Red: 255,
+        Green: 0,
+        Blue: 0,
       });
     });
 
     it('should convert to Green', () => {
-      const rgb: RGB = hsvToRgb(120, 100, 100);
+      const colour: RGB = hsvToRgb(120, 100, 100);
 
-      expect(rgb).toEqual({
-        r: 0,
-        g: 255,
-        b: 0,
+      expect(colour).toEqual({
+        Red: 0,
+        Green: 255,
+        Blue: 0,
       });
     });
 
-
     it('should convert to Blue', () => {
-      const rgb: RGB = hsvToRgb(240, 100, 100);
+      const colour: RGB = hsvToRgb(240, 100, 100);
 
-      expect(rgb).toEqual({
-        r: 0,
-        g: 0,
-        b: 255,
+      expect(colour).toEqual({
+        Red: 0,
+        Green: 0,
+        Blue: 255,
       });
     });
   });

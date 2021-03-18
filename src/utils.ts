@@ -23,9 +23,9 @@ export function hexToRgb(hex: string): RGB {
   }
 
   return {
-    r: parseInt(bits[1], 16),
-    g: parseInt(bits[2], 16),
-    b: parseInt(bits[3], 16),
+    Red: parseInt(bits[1], 16),
+    Green: parseInt(bits[2], 16),
+    Blue: parseInt(bits[3], 16),
   };
 }
 
@@ -94,8 +94,8 @@ export function hsvToRgb (hue: number, saturation: number, value = 100): RGB {
   }
 
   return {
-    r: Math.round(red * 255),
-    g: Math.round(green * 255),
-    b: Math.round(blue * 255),
+    Red: Math.round(red * 255),
+    Green: Math.round(green * 255),
+    Blue: Math.round(blue * 255),
   };
 }

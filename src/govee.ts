@@ -327,13 +327,13 @@ export class Govee extends EventEmitter {
   }
 
   setColor(hue: number, saturation: number, brightness: number): void {
-    const { r, g, b } = hsvToRgb(hue, saturation, brightness);
+    const colour = hsvToRgb(hue, saturation, brightness);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
-      r,
-      g,
-      b,
+      colour.Red,
+      colour.Green,
+      colour.Blue,
       0x00,
       0x00,
       0x00,
@@ -353,7 +353,7 @@ export class Govee extends EventEmitter {
 
     white = Govee.SHADES_OF_WHITE[Math.floor(Math.random() * Govee.SHADES_OF_WHITE.length)];
 
-    const { r, g, b } = hexToRgb(white);
+    const colour = hexToRgb(white);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
@@ -361,9 +361,9 @@ export class Govee extends EventEmitter {
       0xFF,
       0xFF,
       0x01,
-      r,
-      g,
-      b,
+      colour.Red,
+      colour.Green,
+      colour.Blue,
     ]);
   }
 }

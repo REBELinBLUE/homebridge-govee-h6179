@@ -11,12 +11,15 @@ export class GoveeAccessory implements AccessoryPlugin {
   private readonly led: Govee;
 
   private state: AccessoryState = {
+    Connected: false,
     On: false,
     Brightness: 100,
-    Saturation: 100,
-    Hue: 360,
     ColorTemperature: 500,
-    Connected: false,
+    Color: {
+      Hue: 360,
+      Saturation: 100,
+      Value: 0,
+    },
   };
 
   constructor(
@@ -144,8 +147,7 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Brightness ->`, value);
 
-    //this.led.setBrightness(this.state.Brightness);
-    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
+    this.led.setBrightness(this.state.Brightness);
   }
 
   async getBrightness(): Promise<CharacteristicValue> {
@@ -157,15 +159,15 @@ export class GoveeAccessory implements AccessoryPlugin {
   }
 
   async setHue(value: CharacteristicValue) {
-    this.state.Hue = value as number;
+    this.state.Color.Hue = value as number;
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Hue ->`, value);
 
-    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
+    this.setLedColor();
   }
 
   async getHue(): Promise<CharacteristicValue> {
-    const hue = this.state.Hue;
+    const hue = this.state.Color.Hue;
 
     this.platform.log.debug(`[${this.name}] Get Characteristic Hue ->`, hue);
 
@@ -173,19 +175,23 @@ export class GoveeAccessory implements AccessoryPlugin {
   }
 
   async setSaturation(value: CharacteristicValue) {
-    this.state.Saturation = value as number;
+    this.state.Color.Saturation = value as number;
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Saturation ->`, value);
 
-    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
+    this.setLedColor();
   }
 
   async getSaturation(): Promise<CharacteristicValue> {
-    const saturation = this.state.Saturation;
+    const saturation = this.state.Color.Saturation;
 
     this.platform.log.debug(`[${this.name}] Get Characteristic Saturation ->`, saturation);
 
     return saturation;
+  }
+
+  setLedColor(): void {
+    this.led.setColor(this.state.Color.Hue, this.state.Color.Saturation, this.state.Color.Value);
   }
 
   async setColorTemperature(value: CharacteristicValue) {
