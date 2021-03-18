@@ -20,7 +20,7 @@
     "plugins": [
       {
         "transform": "ts-auto-mock/transformer",
-        "cacheBetweenTests": false
+        "cacheBetweenTests": true
       }
     ]
   },
@@ -28,6 +28,6 @@
     "src/"
   ],
   "exclude": [
-    "**/*.spec.ts"
+    "**/*.test.ts"
   ]
 }

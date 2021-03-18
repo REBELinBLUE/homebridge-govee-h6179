@@ -1,4 +1,5 @@
-import { normalisedMacCompare, normalisedUuidCompare } from '../src/utils';
+import { RGB } from '../src/interfaces';
+import { normalisedMacCompare, normalisedUuidCompare, hexToRgb, hsvToRgb } from '../src/utils';
 
 describe('Utils', () => {
   describe('normalisedMacCompare', () => {
@@ -53,5 +54,52 @@ describe('Utils', () => {
     });
   });
 
+  describe('hexToRgb', () => {
+    it('throws an error for invalid input', () => {
+      expect(() => hexToRgb('invalid')).toThrowError('Not a valid hex code');
+    });
 
+    it('should convert to RGB', () => {
+      const rgb: RGB = hexToRgb('#ff0000');
+
+      expect(rgb).toEqual({
+        r: 255,
+        g: 0,
+        b: 0,
+      });
+    });
+  });
+
+  describe('hsvToRgb', () => {
+    it('should convert to Red', () => {
+      const rgb: RGB = hsvToRgb(0, 100, 100);
+
+      expect(rgb).toEqual({
+        r: 255,
+        g: 0,
+        b: 0,
+      });
+    });
+
+    it('should convert to Green', () => {
+      const rgb: RGB = hsvToRgb(120, 100, 100);
+
+      expect(rgb).toEqual({
+        r: 0,
+        g: 255,
+        b: 0,
+      });
+    });
+
+
+    it('should convert to Blue', () => {
+      const rgb: RGB = hsvToRgb(240, 100, 100);
+
+      expect(rgb).toEqual({
+        r: 0,
+        g: 0,
+        b: 255,
+      });
+    });
+  });
 });

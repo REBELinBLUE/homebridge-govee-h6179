@@ -10,12 +10,6 @@ export function normalisedMacCompare(mac1: string, mac2: string): boolean {
   return normaliseMac(mac1) === normaliseMac(mac2);
 }
 
-const to255 = (rgb: RGB): RGB => ({
-  r: Math.round(rgb.r * 255),
-  g: Math.round(rgb.g * 255),
-  b: Math.round(rgb.b * 255),
-});
-
 /**
  * Convert [Hex Triplet](https://en.wikipedia.org/wiki/Web_colors#Hex_triplet) to {@link RGB}.
  *
@@ -24,15 +18,15 @@ const to255 = (rgb: RGB): RGB => ({
  */
 export function hexToRgb(hex: string): RGB {
   const bits = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(hex);
-  if (!bits || bits.length !== 3) {
+  if (!bits || bits.length !== 4) {
     throw new Error('Not a valid hex code');
   }
 
-  return to255({
-    r: parseInt(bits[0], 16),
-    g: parseInt(bits[1], 16),
-    b: parseInt(bits[2], 16),
-  });
+  return {
+    r: parseInt(bits[1], 16),
+    g: parseInt(bits[2], 16),
+    b: parseInt(bits[3], 16),
+  }
 }
 
 /**
@@ -45,6 +39,8 @@ export function hexToRgb(hex: string): RGB {
  * @return {RGB} The corresponding {@link RGB} value.
  */
 export function hsvToRgb (hue: number, saturation: number, value = 100): RGB {
+  // FIXME: Add validation
+
   hue /= 60.0;
   saturation /= 100.0;
   value /= 100.0;
@@ -97,9 +93,9 @@ export function hsvToRgb (hue: number, saturation: number, value = 100): RGB {
       break;
   }
 
-  return to255({
-    r: red,
-    g: green,
-    b: blue,
-  });
+  return {
+    r: Math.round(red * 255),
+    g: Math.round(green * 255),
+    b: Math.round(blue * 255),
+  };
 }
