@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { Characteristic, Peripheral, Service } from '@abandonware/noble';
 import noble from '@abandonware/noble';
 
-import { hexToRgb, hsvToRgb, normalisedMacCompare, normalisedUuidCompare} from './utils';
+import { hexToRgb, hs2rgb, normalisedMacCompare, normalisedUuidCompare} from './utils';
 import { LedCommands, LedModes } from './interfaces';
 import Timeout = NodeJS.Timeout;
 
@@ -326,8 +326,8 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(brightness * 0xFF));
   }
 
-  setColor(hue: number, saturation: number, brightness: number): void {
-    const colour = hsvToRgb(hue, saturation, brightness);
+  setColor(hue: number, saturation: number): void {
+    const colour = hs2rgb(hue, saturation);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,

@@ -99,3 +99,53 @@ export function hsvToRgb (hue: number, saturation: number, value = 100): RGB {
     Blue: Math.round(blue * 255),
   };
 }
+
+export function hs2rgb(h: number, s: number): RGB{
+  /*
+    Credit:
+    https://github.com/WickyNilliams/pure-color
+  */
+  h = h / 60;
+  s = s / 100;
+  const f = h - Math.floor(h);
+  const p = 255 * (1 - s);
+  const q = 255 * (1 - (s * f));
+  const t = 255 * (1 - (s * (1 - f)));
+  let rgb;
+  switch (Math.floor(h) % 6) {
+    case 0:
+      rgb = [255, t, p];
+      break;
+    case 1:
+      rgb = [q, 255, p];
+      break;
+    case 2:
+      rgb = [p, 255, t];
+      break;
+    case 3:
+      rgb = [p, q, 255];
+      break;
+    case 4:
+      rgb = [t, p, 255];
+      break;
+    case 5:
+      rgb = [255, p, q];
+      break;
+    default:
+      rgb = [255, 255, 255];
+  }
+
+  if (rgb[0] === 255) {
+    rgb[1] *= 0.8;
+    rgb[2] *= 0.8;
+    if (rgb[1] <= 25 && rgb[2] <= 25) {
+      rgb[1] = 0;
+      rgb[2] = 0;
+    }
+  }
+  return {
+    Red: Math.round(rgb[0]),
+    Green: Math.round(rgb[1]),
+    Blue: Math.round(rgb[2]),
+  };
+}

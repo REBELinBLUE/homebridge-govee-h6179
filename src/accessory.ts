@@ -18,11 +18,9 @@ export class GoveeAccessory implements AccessoryPlugin {
     Color: {
       Hue: 360,
       Saturation: 100,
-      Value: 0,
+      Value: 100,
     },
   };
-
-  private characteristicValueTransitionControl: any; /* eslint-disable-line  @typescript-eslint/no-explicit-any */
 
   constructor(
     private readonly platform: GoveeHomebridgePlatform,
@@ -83,11 +81,6 @@ export class GoveeAccessory implements AccessoryPlugin {
       .getCharacteristic(this.platform.Characteristic.ColorTemperature)
       .onSet(this.setColorTemperature.bind(this))
       .onGet(this.getColorTemperature.bind(this));
-
-    this.lightbulbService
-      .getCharacteristic(this.platform.Characteristic.CharacteristicValueTransitionControl)
-      .onSet(this.setCharacteristicValueTransitionControl.bind(this))
-      .onGet(this.getCharacteristicValueTransitionControl.bind(this));
   }
 
   disconnect(): void {
@@ -127,21 +120,6 @@ export class GoveeAccessory implements AccessoryPlugin {
       this.informationService,
       this.lightbulbService,
     ];
-  }
-
-  async setCharacteristicValueTransitionControl(value: CharacteristicValue) {
-    this.characteristicValueTransitionControl = value;
-
-    this.platform.log.debug(`[${this.name}] Set Characteristic Value Transition Control On ->`, value);
-  }
-
-  async getCharacteristicValueTransitionControl(): Promise<CharacteristicValue> {
-
-    const characteristicValueTransitionControl = this.characteristicValueTransitionControl;
-
-    this.platform.log.debug(`[${this.name}] Get Characteristic Value Transition Control ->`, characteristicValueTransitionControl);
-
-    return characteristicValueTransitionControl;
   }
 
   async setOn(value: CharacteristicValue) {
@@ -213,7 +191,7 @@ export class GoveeAccessory implements AccessoryPlugin {
   }
 
   setLedColor(): void {
-    this.led.setColor(this.state.Color.Hue, this.state.Color.Saturation, this.state.Color.Value);
+    this.led.setColor(this.state.Color.Hue, this.state.Color.Saturation);
   }
 
   async setColorTemperature(value: CharacteristicValue) {
