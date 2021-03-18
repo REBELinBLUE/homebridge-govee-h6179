@@ -145,7 +145,8 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Brightness ->`, value);
 
-    this.led.setBrightness(this.state.Brightness);
+    //this.led.setBrightness(this.state.Brightness);
+    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
   }
 
   async getBrightness(): Promise<CharacteristicValue> {
@@ -161,7 +162,7 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Hue ->`, value);
 
-    this.led.setColor(this.state.Hue, this.state.Saturation);
+    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
   }
 
   async getHue(): Promise<CharacteristicValue> {
@@ -177,7 +178,7 @@ export class GoveeAccessory implements AccessoryPlugin {
 
     this.platform.log.debug(`[${this.name}] Set Characteristic Saturation ->`, value);
 
-    this.led.setColor(this.state.Hue, this.state.Saturation);
+    this.led.setColor(this.state.Hue, this.state.Saturation, this.state.Brightness);
   }
 
   async getSaturation(): Promise<CharacteristicValue> {

@@ -326,8 +326,8 @@ export class Govee extends EventEmitter {
     this._send(Govee.LedCommand.BRIGHTNESS, Math.floor(brightness * 0xFF));
   }
 
-  setColor(hue: number, saturation: number): void {
-    const { r, g, b } = hsvToRgb(hue, saturation);
+  setColor(hue: number, saturation: number, brightness: number): void {
+    const { r, g, b } = hsvToRgb(hue, saturation, brightness);
 
     this._send(Govee.LedCommand.COLOR, [
       Govee.LedMode.MANUAL,
